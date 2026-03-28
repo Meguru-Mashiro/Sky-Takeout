@@ -17,9 +17,10 @@ public interface EmployeeService {
     /**
      * 新增员工
      * @param employeeDTO
-     * @return
      */
     void save(EmployeeDTO employeeDTO);
 
     PageResult pageQuery(EmployeePageQueryDTO employeePageQueryDTO);
+
+    void StartOrStop(Integer status,Long id);
 }
