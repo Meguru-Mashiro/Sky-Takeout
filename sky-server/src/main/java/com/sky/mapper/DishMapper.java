@@ -34,4 +34,6 @@ public interface DishMapper {
     void deleteByIds(List<Long> ids);
     @AutoFill(value = OperationType.UPDATE)
     void update(Dish dish);
+    @Select("select * from dish where category_id = #{categoryId}")
+    List<DishVO> getByCategoryId(Integer categoryId);
 }

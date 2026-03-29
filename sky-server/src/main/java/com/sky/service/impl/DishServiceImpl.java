@@ -101,5 +101,10 @@ public class DishServiceImpl implements DishService {
         }
     }
 
+    @Override
+    public List<DishVO> list(Integer categoryId) {
+        return dishMapper.getByCategoryId(categoryId);
+    }
+
 
 }
