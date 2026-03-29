@@ -19,4 +19,6 @@ public interface DishService {
     void updateWithFlavor(DishDTO dishDTO);
 
     List<DishVO> list(Integer categoryId);
+
+    void startOrStop(Integer status, Long id);
 }

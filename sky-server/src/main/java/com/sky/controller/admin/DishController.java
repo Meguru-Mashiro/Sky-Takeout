@@ -44,6 +44,13 @@ public class DishController {
         dishService.deleteBatch(ids);
         return Result.success();
     }
+    @PostMapping("/status/{status}")
+    @ApiOperation("菜品起售停售")
+    public Result startOrStop(@PathVariable Integer status,Long id) {
+        log.info("菜品状态修改：{}", status);
+        dishService.startOrStop(status,id);
+        return Result.success();
+    }
     @GetMapping("/{id}")
     @ApiOperation("根据id查询菜品和对应的口味")
     public Result<DishVO> getById(@PathVariable Long id){
