@@ -6,3 +6,8 @@ sky:
     database: sky_take_out
     username: root
     password: 7581
+  minio:
+    endpoint: http://127.0.0.1:9080
+    access-key: root
+    secret-key: password
+    bucket-name: sky-take-out
