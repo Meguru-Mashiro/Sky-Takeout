@@ -51,6 +51,13 @@ public class SetmealServiceImpl implements SetmealService {
 
     @Override
     public void StartOrStop(Integer status,Long id) {
+        if (status == StatusConstant.ENABLE){
+            //查询套餐内是否包含未启售菜品
+            int count = setmealDishMapper.countBySetmealId(id);
+            if (count == 0){
+                throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ENABLE_FAILED);
+            }
+        }
         Setmeal setmeal = Setmeal.builder()
                 .status(status)
                 .id(id)
@@ -78,6 +85,7 @@ public class SetmealServiceImpl implements SetmealService {
         setmealMapper.update(setmeal);
         //根据套餐id删除套餐菜品关联关系
         setmealDishMapper.deleteBySetmealId(setmeal.getId());
+        setmealVO.getSetmealDishes().forEach(dish -> dish.setSetmealId(setmeal.getId()));
         setmealDishMapper.insertBatch(setmealVO.getSetmealDishes());
     }
 

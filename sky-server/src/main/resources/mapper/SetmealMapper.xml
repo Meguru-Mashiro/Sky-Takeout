@@ -3,8 +3,8 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.sky.mapper.SetmealMapper">
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        insert into setmeal (id, name, price, category_id, image, description, status, create_time, update_time)
-        values (#{id}, #{name}, #{price}, #{categoryId}, #{image}, #{description}, #{status}, #{createTime}, #{updateTime})
+        insert into setmeal (id, name, price, category_id, image, description, status, create_time, update_time, create_user, update_user)
+        values (#{id}, #{name}, #{price}, #{categoryId}, #{image}, #{description}, #{status}, #{createTime}, #{updateTime}, #{createUser}, #{updateUser})
     </insert>
     <update id="update">
         update setmeal

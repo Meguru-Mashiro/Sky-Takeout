@@ -19,4 +19,6 @@ public interface SetmealDishMapper {
     void deleteBySetmealId(Long setmealId);
     @Select("select * from setmeal_dish where setmeal_id = #{setmealId}")
     List<SetmealDish> getBySetmealId(Long setmealId);
+    @Select("select count(*) from setmeal_dish where setmeal_id = #{setmealId}")
+    int countBySetmealId(Long setmealId);
 }
