@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Update;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.List;
 
@@ -18,4 +19,6 @@ public interface ShoppingCartMapper {
      void insert(ShoppingCart shoppingCart);
      @Delete("delete from shopping_cart where user_id = #{userId}")
      void deleteByUserId(Long userId);
+     @Delete("delete from shopping_cart where id = #{id}")
+     void deleteById(Long id);
 }
