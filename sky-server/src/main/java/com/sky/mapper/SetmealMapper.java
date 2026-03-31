@@ -35,7 +35,7 @@ public interface SetmealMapper {
     void deleteBatch(List<Long> ids);
 
     @Select("select * from setmeal where id = #{id}")
-    Setmeal selectById(Long id);
+    Setmeal getById(Long id);
     /**
      * 动态条件查询套餐
      * @param setmeal
