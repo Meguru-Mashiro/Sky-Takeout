@@ -52,3 +52,7 @@ sky:
   wechat:
     appid: ${sky.wechat.appid}
     secret: ${sky.wechat.secret}
+  tencent :
+    key: JKCBZ-N4LLQ-MAF5L-4BGUB-IOIR2-WBBXO
+  shop:
+    address: 湖南省长沙市岳麓区中南大学岳麓山校区

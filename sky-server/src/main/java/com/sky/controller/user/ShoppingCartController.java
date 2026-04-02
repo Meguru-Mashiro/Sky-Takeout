@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/user/shoppingCart")
 @Slf4j
-@Api(tags = "c端购物车相关接口")
+@Api(tags = "c端-购物车相关接口")
 public class ShoppingCartController {
     @Autowired
     private ShoppingCartService shoppingCartService;
