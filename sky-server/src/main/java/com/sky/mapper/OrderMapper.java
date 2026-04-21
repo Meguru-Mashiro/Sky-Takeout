@@ -44,4 +44,10 @@ public interface OrderMapper {
     Integer countByMap(Map map);
 
     List<GoodsSalesDTO> getSaleTop(LocalDateTime begin, LocalDateTime end);
+    @Select("select od.dish_id from orders o " +
+            "inner join order_detail od on o.id = od.order_id " +
+            "where o.user_id = #{userId} and o.status = 5 " +
+            "and od.dish_id is not null " +
+            "order by o.order_time desc limit 20")
+    List<Long> selectOrderHistory(Long userId);
 }

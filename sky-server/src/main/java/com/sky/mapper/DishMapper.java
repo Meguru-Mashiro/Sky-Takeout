@@ -50,4 +50,6 @@ public interface DishMapper {
      * @return
      */
     Integer countByMap(Map map);
+    List<DishVO> selectByIds(List<Long> ids);
+    List<Dish> selectAllDishes(Long categoryId);
 }

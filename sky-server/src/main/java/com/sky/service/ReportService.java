@@ -21,4 +21,5 @@ public interface ReportService {
     SalesTop10ReportVO getSalesTop10(LocalDate begin, LocalDate end);
 
     void exportBusinessData(HttpServletResponse response);
+
 }

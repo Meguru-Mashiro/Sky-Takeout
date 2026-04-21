@@ -2,6 +2,8 @@ server:
   port: 8080
 
 spring:
+  cache:
+    type: redis
   profiles:
     active: dev
   main:
@@ -17,6 +19,17 @@ spring:
     port: ${sky.redis.port}
     password: ${sky.redis.password}
     database: ${sky.redis.database}
+  rabbitmq:
+    host: ${sky.rabbitmq.host}
+    port: ${sky.rabbitmq.port}
+    username: ${sky.rabbitmq.username}
+    password: ${sky.rabbitmq.password}
+    virtual-host: ${sky.rabbitmq.virtual-host}
+    listener:
+      simple:
+        acknowledge-mode: ${sky.rabbitmq.listener.acknowledge-mode}
+        prefetch: ${sky.rabbitmq.listener.prefetch}
+
 mybatis:
   #mapper配置文件
   mapper-locations: classpath:mapper/*.xml
@@ -56,3 +69,10 @@ sky:
     key: JKCBZ-N4LLQ-MAF5L-4BGUB-IOIR2-WBBXO
   shop:
     address: 湖南省长沙市岳麓区中南大学岳麓山校区
+  ai:
+    api-key: sk-87cd3e6527fc471482b837e1e29352a8
+    api-url: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
+    model: qwen-plus
+    temperature: 0.7
+    max-tokens: 1000
+    timeout: 60

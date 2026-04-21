@@ -12,6 +12,7 @@ import com.sky.entity.*;
 import com.sky.exception.AddressBookBusinessException;
 import com.sky.exception.OrderBusinessException;
 import com.sky.mapper.*;
+import com.sky.rabbitmq.OrderMessageProducer;
 import com.sky.result.PageResult;
 import com.sky.utils.HttpClientUtil;
 import com.sky.utils.WeChatPayUtil;
@@ -52,6 +53,8 @@ public class OrderServiceImpl implements OrderService {
     private WeChatPayUtil weChatPayUtil;
     @Autowired
     private WebSocketServer webSocketServer;
+    @Autowired
+    private OrderMessageProducer orderMessageProducer;
     @Value("${sky.shop.address}")
     private String shopAddress;
     @Value("${sky.tencent.key}")
@@ -97,6 +100,8 @@ public class OrderServiceImpl implements OrderService {
         orderDetailMapper.insertBatch(orderDetailList);
         //清空购物车数据
         shoppingCartMapper.deleteByUserId(userId);
+        // 发送延迟消息，15分钟后处理超时订单
+        orderMessageProducer.sendOrderDelayMessage(orders.getId(), userId);
         //封装VO返回数据
         OrderSubmitVO orderSubmitVO = OrderSubmitVO.builder()
                 .id(orders.getId())
@@ -365,6 +370,13 @@ public class OrderServiceImpl implements OrderService {
     public void reminder(Long id) {
         Orders ordersDB = orderMapper.getById(id);
         if (ordersDB == null){
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+        // 校验订单状态：只有已支付且未完成的订单才能催单
+        // 状态：1待付款 2待接单 3已接单 4派送中 5已完成 6已取消
+        Integer status = ordersDB.getStatus();
+        if (status == null || status.equals(Orders.PENDING_PAYMENT)
+                || status.equals(Orders.CANCELLED) || status.equals(Orders.COMPLETED)) {
             throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
         }
         Map map = new HashMap<>();
