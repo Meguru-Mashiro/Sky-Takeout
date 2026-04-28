@@ -29,3 +29,5 @@ sky:
       acknowledge-mode: manual
       prefetch: 1
     order-timeout: 900000
+  ai:
+    api-key: sk-87cd3e6527fc471482b837e1e29352a8

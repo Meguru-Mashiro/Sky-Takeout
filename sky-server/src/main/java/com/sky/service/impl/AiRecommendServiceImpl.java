@@ -10,8 +10,11 @@ import com.sky.vo.DishVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -36,6 +39,8 @@ public class AiRecommendServiceImpl implements AiRecommendService {
     private RedisTemplate redisTemplate;
 
     private static final String AI_RECOMMEND_CACHE = "ai:recommend:";
+    private static final String AI_CHAT_HISTORY = "ai:chat:history:";
+    private static final int MAX_HISTORY_SIZE = 11;
 
     @Override
     public List<DishVO> aiRecommend(Long userId, Integer limit) {
@@ -109,6 +114,83 @@ public class AiRecommendServiceImpl implements AiRecommendService {
         return aiClient.chat(message, systemPrompt);
     }
 
+
+    @Override
+    public SseEmitter streamChat(String message, Long userId) {
+        SseEmitter emitter = new com.sky.config.SseEmitterUTF8(60000L);
+
+        List<Long> orderHistory = orderMapper.selectOrderHistory(userId);
+        String userContext = String.format("用户历史订单菜品ID：%s", orderHistory);
+
+        String systemPrompt = "你是外卖平台智能客服，负责解答用户关于菜品、订单、配送等问题。\n" +
+                "要求：\n" +
+                "1. 回答简洁友好，不超过100字\n" +
+                "2. 如果涉及具体订单，需要查询后回复\n" +
+                "3. 遇到无法解决的问题，引导用户联系人工客服\n\n" +
+                "用户信息：" + userContext;
+
+        emitter.onTimeout(() -> {
+            log.warn("SSE连接超时，用户ID: {}", userId);
+            try {
+                Map<String, Object> errorData = new LinkedHashMap<>();
+                errorData.put("content", "连接超时");
+                errorData.put("isEnd", true);
+                errorData.put("timestamp", System.currentTimeMillis());
+                emitter.send(errorData);
+                emitter.complete();
+            } catch (IOException e) {
+                log.error("发送超时消息失败", e);
+            }
+        });
+
+        emitter.onError((ex) -> {
+            log.error("SSE连接错误，用户ID: {}", userId, ex);
+            emitter.completeWithError(ex);
+        });
+
+        new Thread(() -> {
+            try {
+                aiClient.streamChat(message, systemPrompt, chunk -> {
+                    try {
+                        Map<String, Object> data = new LinkedHashMap<>();
+                        data.put("content", chunk);
+                        data.put("isEnd", false);
+                        data.put("timestamp", System.currentTimeMillis());
+
+                        log.info("【SSE输出】发送数据块: {}", com.alibaba.fastjson2.JSON.toJSONString(data));
+                        emitter.send(data);
+                    } catch (IOException e) {
+                        log.error("发送SSE数据块失败", e);
+                        emitter.completeWithError(e);
+                    }
+                });
+
+                Map<String, Object> endData = new LinkedHashMap<>();
+                endData.put("content", "");
+                endData.put("isEnd", true);
+                endData.put("timestamp", System.currentTimeMillis());
+
+                log.info("【SSE输出】发送结束标记: {}", com.alibaba.fastjson2.JSON.toJSONString(endData));
+                emitter.send(endData);
+                emitter.complete();
+            } catch (Exception e) {
+                log.error("流式对话处理异常", e);
+                try {
+                    Map<String, Object> errorData = new LinkedHashMap<>();
+                    errorData.put("content", "抱歉，系统繁忙，请稍后再试");
+                    errorData.put("isEnd", true);
+                    errorData.put("timestamp", System.currentTimeMillis());
+                    emitter.send(errorData);
+                } catch (IOException ex) {
+                    log.error("发送错误消息失败", ex);
+                }
+                emitter.completeWithError(e);
+            }
+        }).start();
+
+        return emitter;
+    }
+
     @Override
     public Map<String, Object> aiAnalyzeUserPreference(Long userId) {
         List<Long> orderHistory = orderMapper.selectOrderHistory(userId);
@@ -130,7 +212,6 @@ public class AiRecommendServiceImpl implements AiRecommendService {
             return errorMap;
         }
     }
-
     private String buildUserContext(Long userId, List<Long> categories, List<Long> orders) {
         return String.format(
                 "用户ID：%d\n偏好分类：%s\n历史订单：%s",

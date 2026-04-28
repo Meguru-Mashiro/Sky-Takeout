@@ -9,8 +9,8 @@ import com.sky.service.DishService;
 import com.sky.service.SceneRecommendService;
 import com.sky.service.UserBehaviorService;
 import com.sky.vo.DishVO;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -22,7 +22,7 @@ import java.util.Map;
 @RestController("userDishController")
 @RequestMapping("/user/dish")
 @Slf4j
-@Api(tags = "C端-菜品浏览接口")
+@Tag(name = "C端-菜品浏览接口")
 public class DishController {
     @Autowired
     private DishService dishService;
@@ -39,7 +39,7 @@ public class DishController {
      * @return
      */
     @GetMapping("/list")
-    @ApiOperation("根据分类id查询菜品")
+    @Operation(summary="根据分类id查询菜品")
     public Result<List<DishVO>> list(Long categoryId) {
         String key = "dish_"+categoryId;
         List<DishVO> list = (List<DishVO>)redisTemplate.opsForValue().get(key);
@@ -55,7 +55,7 @@ public class DishController {
         return Result.success(list);
     }
     @PostMapping("/behavior")
-    @ApiOperation("记录用户行为")
+    @Operation(summary="记录用户行为")
     public Result<Void> recordBehavior(@RequestBody UserBehaviorDTO dto) {
         dto.setUserId(BaseContext.getCurrentId());
         userBehaviorService.recordBehavior(dto);
@@ -63,7 +63,7 @@ public class DishController {
     }
 //
 //    @GetMapping("/hot")
-//    @ApiOperation("热门菜品")
+//    @Operation(summary="热门菜品")
 //    public Result<List<DishVO>> hot() {
 //        List<Long> hotIds = userBehaviorService.getHotDishIds(10);
 //        if (hotIds.isEmpty()) {
@@ -77,7 +77,7 @@ public class DishController {
 //    }
 //
 //    @GetMapping("/scene")
-//    @ApiOperation("场景推荐")
+//    @Operation(summary="场景推荐")
 //    public Result<Map<String, Object>> sceneRecommend() {
 //        String scene = sceneRecommendService.getCurrentScene();
 //        List<DishVO> list = sceneRecommendService.getSceneRecommend(null);
@@ -88,7 +88,7 @@ public class DishController {
 //    }
 //
 //    @GetMapping("/combo/{dishId}")
-//    @ApiOperation("组合推荐")
+//    @Operation(summary="组合推荐")
 //    public Result<List<DishVO>> comboRecommend(@PathVariable Long dishId) {
 //        List<Long> comboIds = userBehaviorService.getComboRecommendIds(dishId, 5);
 //        if (comboIds.isEmpty()) {
