@@ -128,7 +128,7 @@
             <artifactId>easyexcel</artifactId>
             <version>3.3.2</version>
         </dependency>
-<!--        新增-->
+        <!--        新增-->
         <dependency>
             <groupId>com.alibaba.fastjson2</groupId>
             <artifactId>fastjson2</artifactId>
@@ -155,8 +155,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>16</source>
-                    <target>16</target>
+                    <source>17</source>
+                    <target>17</target>
                 </configuration>
             </plugin>
         </plugins>

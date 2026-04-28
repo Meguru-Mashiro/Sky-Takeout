@@ -8,8 +8,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +36,7 @@ public class AiController {
     @GetMapping("/search")
     @ApiOperation("AI语义搜索菜品")
     public Result<String> aiSearch(@RequestParam String keywords,
-                                    @RequestParam(required = false) Long categoryId) {
+                                   @RequestParam(required = false) Long categoryId) {
         String result = aiRecommendService.aiSearchDishes(keywords, categoryId);
         return Result.success(result);
     }
@@ -45,6 +48,25 @@ public class AiController {
         String response = aiRecommendService.aiChat(dto.getMessage(), userId);
         return Result.success(response);
     }
+// ... existing code ...
+
+    @GetMapping(value = "/chat/stream")
+    @ApiOperation("AI智能客服对话-流式输出")
+    public SseEmitter streamChat(@RequestParam String message) {
+        Long userId = BaseContext.getCurrentId();
+        log.info("【流式接口】用户{}发起流式对话请求: {}", userId, message);
+
+        try {
+            SseEmitter emitter = aiRecommendService.streamChat(message, userId);
+            log.info("【流式接口】SseEmitter创建成功，用户ID: {}", userId);
+            return emitter;
+        } catch (Exception e) {
+            log.error("【流式接口】创建流式对话失败，用户ID: {}", userId, e);
+            throw e;
+        }
+    }
+
+// ... existing code ...
 
     @GetMapping("/preference")
     @ApiOperation("AI分析用户偏好")
